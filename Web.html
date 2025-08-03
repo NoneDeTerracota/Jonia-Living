@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jonia Living</title>
+    <!-- Carga de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuración de la fuente Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Favicon -->
+    <link rel="icon" href="Logo 3.svg" type="image/svg" sizes="16x16">
+    <!-- Libreria para logos de redes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .hero-section {
+            height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden; /* Oculta partes de las imágenes que se desbordan */
+        }
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Oscurece la imagen */
+            z-index: 1; /* Asegura que el overlay esté sobre las imágenes pero debajo del texto */
+        }
+
+        /* Estilos para el carrusel */
+        .carousel-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        .carousel-slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transition: opacity 1s ease-in-out; /* Transición suave entre imágenes */
+        }
+        .carousel-slide.active {
+            opacity: 1;
+        }
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Asegura que la imagen cubra el área sin distorsionarse */
+        }
+        .carousel-nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 1rem;
+            cursor: pointer;
+            z-index: 2; /* Sobre el overlay */
+            border-radius: 9999px; /* Fully rounded */
+            font-size: 1.5rem;
+            transition: background-color 0.3s ease;
+        }
+        .carousel-nav-button:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        .carousel-nav-button.prev {
+            left: 1rem;
+        }
+        .carousel-nav-button.next {
+            right: 1rem;
+        }
+        .carousel-indicators {
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 0.5rem;
+            z-index: 2; /* Sobre el overlay */
+        }
+        .indicator-dot {
+            width: 10px;
+            height: 10px;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .indicator-dot.active {
+            background-color: white;
+        }
+
+        /* Estilos para el modal */
+        .modal {
+            display: none; /* Oculto por defecto */
+            position: fixed; /* Permanece en su lugar */
+            z-index: 100; /* Se sitúa encima de todo */
+            left: 0;
+            top: 0;
+            width: 100%; /* Ancho completo */
+            height: 100%; /* Alto completo */
+            overflow: auto; /* Habilita el scroll si es necesario */
+            background-color: rgba(0,0,0,0.7); /* Fondo oscuro semitransparente */
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border-radius: 1rem; /* Bordes redondeados */
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+            animation: fadeIn 0.3s ease-out;
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+    <!-- Barra de Navegación -->
+    <nav class="bg-white shadow-lg p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="#" class="flex items-center">
+                <img src="Logo 2.svg" alt="Jonia Living" class="h-10 w-auto">
+              </a>
+            <div class="hidden md:flex space-x-6">
+                <a href="#propiedades" class="text-gray-700 hover:text-indigo-600 font-medium">Propiedades</a>
+                <a href="#nosotros" class="text-gray-700 hover:text-indigo-600 font-medium">Nosotros</a>
+                <a href="#contacto" class="text-gray-700 hover:text-indigo-600 font-medium">Contacto</a>
+            </div>
+            <div class="md:hidden">
+                <button id="menu-button" class="text-gray-700 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                </button>
+            </div>
+        </div>
+        <!-- Menú móvil -->
+        <div id="mobile-menu" class="hidden md:hidden mt-4">
+            <a href="#propiedades" class="block py-2 px-4 text-gray-700 hover:bg-gray-200 rounded-md">Propiedades</a>
+            <a href="#nosotros" class="block py-2 px-4 text-gray-700 hover:bg-gray-200 rounded-md">Nosotros</a>
+            <a href="#contacto" class="block py-2 px-4 text-gray-700 hover:bg-gray-200 rounded-md">Contacto</a>
+        </div>
+    </nav>
+
+    <!-- Sección de Héroe con Carrusel -->
+    <section class="hero-section">
+        <div class="carousel-container">
+            <div class="carousel-slide active">
+                <img src="imagen 1.jpg" alt="">
+            </div>
+            <div class="carousel-slide">
+                <img src="imagen 2.jpg" alt="">
+            </div>
+            <div class="carousel-slide">
+                <img src="imagen 3.jpg" alt="">
+            </div>
+            
+        </div>
+        <div class="hero-overlay"></div>
+        <div class="relative z-10 p-4">
+            <h1 class="text-5xl md:text-6xl font-extrabold leading-tight mb-4 animate-fade-in-up">Encuentra el Hogar de Tus Sueños</h1>
+            <p class="text-lg md:text-xl mb-8 animate-fade-in-up delay-200">Tu socio confiable en bienes raíces.</p>
+            <a href="#propiedades" class="bg-green-800 hover:bg-green-900 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 animate-fade-in-up delay-400">Ver Propiedades</a>
+        </div>
+
+        <!-- Controles de navegación del carrusel -->
+        <button class="carousel-nav-button prev" aria-label="Anterior">&#10094;</button>
+        <button class="carousel-nav-button next" aria-label="Siguiente">&#10095;</button>
+
+        <!-- Indicadores del carrusel -->
+        <div class="carousel-indicators"></div>
+    </section>
+
+    <!-- Sección de Propiedades Destacadas -->
+    <section id="propiedades" class="py-16 bg-gray-100">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center mb-12 text-green-800">Propiedades Destacadas</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Tarjeta de Propiedad 1 -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-xl">
+                    <img src="Casa.jpg" alt="Casa Moderna" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-semibold text-gray-800 mb-2">Casa Moderna en Suburbios</h3>
+                        <p class="text-gray-600 mb-4">3 habitaciones, 2 baños, 180m²</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-green-600 text-2xl font-bold">$350,000</span>
+                            <!-- Botón para abrir modal con data-property-id -->
+                            <button data-property-id="1" class="open-modal-btn bg-green-800 hover:bg-green-900 text-white py-2 px-4 rounded-full text-sm font-medium">Ver Detalles</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Tarjeta de Propiedad 2 -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-xl">
+                    <img src="Apartamento.jpg" alt="Apartamento de Lujo" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-semibold text-gray-800 mb-2">Apartamento de Lujo en Ciudad</h3>
+                        <p class="text-gray-600 mb-4">2 habitaciones, 2 baños, 120m²</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-green-600 text-2xl font-bold">$420,000</span>
+                            <!-- Botón para abrir modal con data-property-id -->
+                            <button data-property-id="2" class="open-modal-btn bg-green-800 hover:bg-green-900 text-white py-2 px-4 rounded-full text-sm font-medium">Ver Detalles</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Tarjeta de Propiedad 3 -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-xl">
+                    <img src="Villa.jpg" alt="Villa Frente a la Playa" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-semibold text-gray-800 mb-2">Villa Frente a la Playa</h3>
+                        <p class="text-gray-600 mb-4">4 habitaciones, 3 baños, 250m²</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-green-600 text-2xl font-bold">$890,000</span>
+                            <!-- Botón para abrir modal con data-property-id -->
+                            <button data-property-id="3" class="open-modal-btn bg-green-800 hover:bg-green-900 text-white py-2 px-4 rounded-full text-sm font-medium">Ver Detalles</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-12">
+                <a href="#" class="bg-green-800 hover:bg-green-900 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105">Ver Todas las Propiedades</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección Acerca de Nosotros -->
+    <section id="nosotros" class="py-16 bg-white">
+        <div class="container mx-auto px-4 flex flex-col md:flex-row items-center gap-8">
+            <div class="md:w-1/2">
+                <img src="Logo 4.svg" alt="Nuestro Equipo" class="rounded-xl shadow-lg w-full max-w-sm mx-auto">
+            </div>
+            <div class="md:w-1/2">
+                <h2 class="text-4xl font-bold mb-6 text-green-800">Acerca de Nosotros</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    Sabemos que la experiencia no siempre se mide en años, sino en dedicación y responsabilidad. Estamos comenzando con ideas frescas, energía y la motivación de demostrar que se puede hacer un servicio inmobiliario transparente y diferente.
+                </p>
+                <p class="text-gray-700 leading-relaxed mb-6">
+                    Nos importa más construir relaciones a largo plazo que solo cerrar negocios, por eso cada cliente es único para nosotros.
+                </p>
+                <a href="#contacto" class="bg-green-800 hover:bg-green-900 text-white font-bold py-3 px-6 rounded-full shadow-md transition duration-300 ease-in-out">Conoce a Nuestro Equipo</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Contacto (simple form) -->
+    <section id="contacto" class="py-16 bg-gray-100">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center mb-12 text-green-800">Contáctanos</h2>
+            <div class="max-w-lg mx-auto bg-white rounded-xl shadow-lg p-8">
+                <form>
+                    <div class="mb-6">
+                        <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Nombre:</label>
+                        <input type="text" id="name" name="name" class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Tu Nombre">
+                    </div>
+                    <div class="mb-6">
+                        <label for="email" class="block text-gray-700 text-sm font-bold mb-2">Email:</label>
+                        <input type="email" id="email" name="email" class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="tu@email.com">
+                    </div>
+                    <div class="mb-6">
+                        <label for="message" class="block text-gray-700 text-sm font-bold mb-2">Mensaje:</label>
+                        <textarea id="message" name="message" rows="5" class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Escribe tu mensaje aquí..."></textarea>
+                    </div>
+                    <div class="flex items-center justify-center">
+                        <button type="submit" class="bg-green-800 hover:bg-green-900 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105">Enviar Mensaje</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pie de Página -->
+    <footer class="bg-green-900 text-white py-8">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2025 Jonia Living. Todos los derechos reservados.</p>
+            <div class="flex justify-center space-x-6 mt-4">
+                <a href="#" class="hover:text-white transition duration-300"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="hover:text-white transition duration-300"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="hover:text-white transition duration-300"><i class="fab fa-tiktok"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal para Detalles de Propiedad -->
+    <div id="property-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h3 id="modal-property-title" class="text-3xl font-bold text-indigo-800 mb-4"></h3>
+            <img id="modal-property-image" src="" alt="Imagen de Propiedad" class="w-full h-64 object-cover rounded-md mb-4">
+            <p id="modal-property-details" class="text-gray-700 leading-relaxed mb-4"></p>
+            <p id="modal-property-price" class="text-indigo-600 text-3xl font-bold mb-4"></p>
+            <p id="modal-property-description" class="text-gray-600 mb-4"></p>
+            <p id="modal-property-features" class="text-gray-600"></p>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript para el menú móvil
+        document.getElementById('menu-button').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.remove('hidden');
+            } else {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+
+        // Animaciones de aparición (opcional, se puede mejorar con Intersection Observer)
+        const fadeInElements = document.querySelectorAll('.animate-fade-in-up');
+        fadeInElements.forEach((el, index) => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                el.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+                el.style.opacity = '1';
+                el.style.transform = 'translateY(0)';
+            }, index * 100 + 100); // Retraso escalonado
+        });
+
+        // Lógica del Modal
+        const propertyModal = document.getElementById('property-modal');
+        const closeButton = document.querySelector('.close-button');
+        const openModalButtons = document.querySelectorAll('.open-modal-btn');
+
+        // Datos de las propiedades (simulados)
+        const propertiesData = {
+            1: {
+                title: 'Casa Moderna en Suburbios',
+                image: 'Casa.jpg',
+                details: '3 habitaciones, 2 baños, 180m²',
+                price: '$350,000',
+                description: 'Hermosa casa moderna ubicada en un tranquilo suburbio, ideal para familias. Cuenta con amplios espacios, acabados de alta calidad y un jardín privado. Cerca de escuelas y centros comerciales.',
+                features: 'Características: Garaje doble, cocina equipada, sistema de seguridad, aire acondicionado central.'
+            },
+            2: {
+                title: 'Apartamento de Lujo en Ciudad',
+                image: 'Apartamento.jpg',
+                details: '2 habitaciones, 2 baños, 120m²',
+                price: '$420,000',
+                description: 'Exclusivo apartamento en el corazón de la ciudad con vistas panorámicas. Diseño contemporáneo, balcón privado y acceso a amenidades de lujo como gimnasio y piscina.',
+                features: 'Características: Conserjería 24h, piscina, gimnasio, balcón, vistas a la ciudad.'
+            },
+            3: {
+                title: 'Villa Frente a la Playa',
+                image: 'Villa.jpg',
+                details: '4 habitaciones, 3 baños, 250m²',
+                price: '$890,000',
+                description: 'Impresionante villa con acceso directo a la playa. Disfruta de atardeceres espectaculares y la brisa marina desde tu propio paraíso. Perfecta para vacaciones o residencia permanente.',
+                features: 'Características: Acceso directo a la playa, piscina infinita, terraza, jardín tropical, amueblada.'
+            }
+        };
+
+        // Abrir modal
+        openModalButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const propertyId = this.dataset.propertyId;
+                const property = propertiesData[propertyId];
+
+                if (property) {
+                    document.getElementById('modal-property-title').textContent = property.title;
+                    document.getElementById('modal-property-image').src = property.image;
+                    document.getElementById('modal-property-details').textContent = property.details;
+                    document.getElementById('modal-property-price').textContent = property.price;
+                    document.getElementById('modal-property-description').textContent = property.description;
+                    document.getElementById('modal-property-features').textContent = property.features;
+                    propertyModal.style.display = 'flex'; // Usar flex para centrar el contenido
+                }
+            });
+        });
+
+        // Cerrar modal al hacer clic en la 'x'
+        closeButton.addEventListener('click', function() {
+            propertyModal.style.display = 'none';
+        });
+
+        // Cerrar modal al hacer clic fuera del contenido del modal
+        window.addEventListener('click', function(event) {
+            if (event.target == propertyModal) {
+                propertyModal.style.display = 'none';
+            }
+        });
+
+        // Lógica del Carrusel
+        const slides = document.querySelectorAll('.carousel-slide');
+        const prevButton = document.querySelector('.carousel-nav-button.prev');
+        const nextButton = document.querySelector('.carousel-nav-button.next');
+        const indicatorsContainer = document.querySelector('.carousel-indicators');
+        let currentSlide = 0;
+        let slideInterval;
+
+        // Función para mostrar una diapositiva específica
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                if (i === index) {
+                    slide.classList.add('active');
+                }
+            });
+            updateIndicators(index);
+        }
+
+        // Función para avanzar a la siguiente diapositiva
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        // Función para retroceder a la diapositiva anterior
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        // Crear indicadores de puntos
+        function createIndicators() {
+            slides.forEach((_, i) => {
+                const dot = document.createElement('div');
+                dot.classList.add('indicator-dot');
+                dot.addEventListener('click', () => {
+                    currentSlide = i;
+                    showSlide(currentSlide);
+                    resetInterval();
+                });
+                indicatorsContainer.appendChild(dot);
+            });
+            updateIndicators(currentSlide);
+        }
+
+        // Actualizar el estado activo de los indicadores
+        function updateIndicators(index) {
+            const dots = document.querySelectorAll('.indicator-dot');
+            dots.forEach((dot, i) => {
+                dot.classList.remove('active');
+                if (i === index) {
+                    dot.classList.add('active');
+                }
+            });
+        }
+
+        // Iniciar el carrusel automático
+        function startCarousel() {
+            slideInterval = setInterval(nextSlide, 5000); // Cambia cada 5 segundos
+        }
+
+        // Reiniciar el intervalo del carrusel
+        function resetInterval() {
+            clearInterval(slideInterval);
+            startCarousel();
+        }
+
+        // Event Listeners para los botones de navegación
+        prevButton.addEventListener('click', () => {
+            prevSlide();
+            resetInterval();
+        });
+        nextButton.addEventListener('click', () => {
+            nextSlide();
+            resetInterval();
+        });
+
+        // Inicializar el carrusel al cargar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            createIndicators();
+            showSlide(currentSlide);
+            startCarousel();
+        });
+    </script>
+</body>
+</html>
